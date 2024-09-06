@@ -1,0 +1,65 @@
+.navbar-logo {
+  margin-right: 10px;
+  height: 25px;
+}
+
+.search-input {
+  width: 500px;
+}
+
+.add-button {
+  border-radius: 20px;
+  margin-right: 10px;
+}
+
+.profile-pic {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.dropdown-profile-pic {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.mobile-navbar {
+  background-color: #2e69ff;
+  color: white;
+}
+
+.mobile-nav-buttons {
+  background-color: #dde0e5;
+}
+
+.mobile-profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.tips-card {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.tips-text {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+.tab-title-custom {
+  font-size: 0.9rem;
+}
+
+.tips-list {
+  list-style: disc;
+  /* margin-left: 20px; */
+  font-size: 1rem;
+}
+.selected-image {
+  max-width: 100%;
+  height: auto;
+  margin-top: 10px;
+}

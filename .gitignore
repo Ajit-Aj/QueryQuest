@@ -1,0 +1,31 @@
+# Node.js modules
+node_modules/
+
+# Environment variables file
+.env
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Optional coverage directory
+coverage
+
+# Optional output of 'npm pack'
+*.tgz
+
+# Miscellaneous
+.DS_Store
