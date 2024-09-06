@@ -33,14 +33,14 @@ Before you begin, ensure you have the following installed:
 
 You'll need to set up environment variables for the backend. Create a file named .env and add the following:
 
-     ```bash
-    echo 'PORT=5000
-    MONGO_URI=your_mongodb_connection_string' > .env
+    ```bash
+    PORT=5000
+    MONGO_URI=your_mongodb_connection_string
 
 Replace `your_mongodb_connection_string` with your actual MongoDB connection string.
 
 4. **Start the backend server:**
-   ```bash
+    ```bash
     npm start
 
 The backend server should now be running on `http://localhost:5000.`
