@@ -21,7 +21,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
-  const { name, clearAuthInfo } = useContext(AuthContext);
+  const { name, clearAuthInfo, profileImage } = useContext(AuthContext);
 
   const toggle = () => setDropdownOpen((prevState) => !prevState);
   const Handletoggle = () => {
@@ -89,7 +89,7 @@ const Header = () => {
             </DropdownMenu>
           </UncontrolledDropdown>
         </Nav>
-        <span className="text-white mx-3">
+        <span className="text-white mx-1">
           {" Hi,"}
           {name}
         </span>{" "}
@@ -97,10 +97,12 @@ const Header = () => {
         <Dropdown isOpen={dropdownOpen} toggle={toggle}>
           <DropdownToggle color="transparent">
             <img
-              src={user1}
+              src={`http://localhost:4000/${profileImage}`}
               alt="profile"
               className="rounded-circle"
-              width="30"
+              style={{ objectFit: "cover" }}
+              width={45}
+              height={45}
             />
           </DropdownToggle>
           <DropdownMenu>

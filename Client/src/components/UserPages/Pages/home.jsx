@@ -34,6 +34,8 @@ const ArticleCard = () => {
 
   const { data, loading, error } = useFetch("/api/posts/all");
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     if (data || error) {
       try {
@@ -100,21 +102,54 @@ const ArticleCard = () => {
 
   const handleUpVotePost = async (postId) => {
     try {
-      await axiosInstance.post(`/api/posts/upvote/${postId}`);
+      const post = posts.find((p) => p._id === postId);
+      const userHasLiked = post.upvotes.includes(userID);
+      const userHasDisliked = post.downvotes.includes(userID);
+
+      // If the user has already disliked, undo the dislike first
+      if (userHasDisliked) {
+        await axiosInstance.post(`/api/posts/downvote/${postId}`);
+      }
+
+      if (userHasLiked) {
+        // If already liked, undo the like
+        await axiosInstance.post(`/api/posts/upvote/${postId}`);
+      } else {
+        // Otherwise, like the post
+
+        await axiosInstance.post(`/api/posts/upvote/${postId}`);
+      }
+
       const response = await axiosInstance.get("/api/posts/all");
       setPosts(response.data);
     } catch (error) {
-      console.error("Error submitting reply", error);
+      console.error("Error handling upvote", error);
     }
   };
 
   const handleDownVotePost = async (postId) => {
     try {
-      await axiosInstance.post(`/api/posts/downvote/${postId}`);
+      const post = posts.find((p) => p._id === postId);
+      const userHasLiked = post.upvotes.includes(userID);
+      const userHasDisliked = post.downvotes.includes(userID);
+
+      // If the user has already liked, undo the like first
+      if (userHasLiked) {
+        await axiosInstance.post(`/api/posts/upvote/${postId}`);
+      }
+
+      if (userHasDisliked) {
+        // If already disliked, undo the dislike
+        await axiosInstance.post(`/api/posts/downvote/${postId}`);
+      } else {
+        // Otherwise, dislike the post
+        await axiosInstance.post(`/api/posts/downvote/${postId}`);
+      }
+
       const response = await axiosInstance.get("/api/posts/all");
       setPosts(response.data);
     } catch (error) {
-      console.error("Error submitting reply", error);
+      console.error("Error handling downvote", error);
     }
   };
 
@@ -254,13 +289,22 @@ const ArticleCard = () => {
       {/* <CustomNavbar /> */}
       <div className="mt-3 container">
         {/* First Card */}
-        <div className="card mb-3 shadow-sm" style={{ borderRadius: "10px" }}>
+        <div
+          className="card mb-3 shadow-sm"
+          style={{
+            borderRadius: "10px",
+            padding: "10px",
+            border: "0.1px solid #d3d3d3",
+            backgroundColor: "white",
+            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+          }}
+        >
           <div className="card-body">
             <div className="d-flex align-items-center mb-3">
               <img
                 src={
                   profileImage
-                    ? `http://localhost:4000/${profileImage}`
+                    ? `${backendUrl}${profileImage}`
                     : "https://th.bing.com/th/id/OIP.T9s09Pl74H7Yzy0Wdj5ZjQHaHa?rs=1&pid=ImgDetMain"
                 }
                 alt="Profile"
@@ -307,7 +351,7 @@ const ArticleCard = () => {
               <img
                 src={
                   post.user && post.user.profileImage
-                    ? `http://localhost:4000/${post.user.profileImage}`
+                    ? `${backendUrl}${post.user.profileImage}`
                     : "https://th.bing.com/th/id/OIP.T9s09Pl74H7Yzy0Wdj5ZjQHaHa?rs=1&pid=ImgDetMain"
                 }
                 alt="Profile"
@@ -360,10 +404,8 @@ const ArticleCard = () => {
 
             {post.image && (
               <img
-                src={`http://localhost:4000/${post.image}`}
-                // src={`${backendUrl}/${post.image}`}
+                src={`${backendUrl}${post.image}`}
                 alt={`${post.user.name}'s post`}
-                className="student-image"
               />
             )}
 
@@ -405,6 +447,12 @@ const ArticleCard = () => {
                     placeholder="Add a comment..."
                     value={comment}
                     onChange={handleCommentChange}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault(); // Prevent form submission or any other default action
+                        handleCommentSubmit(post._id); // Submit the comment
+                      }
+                    }}
                   />
                   <button
                     className="btn btn-primary ml-2"
@@ -425,7 +473,8 @@ const ArticleCard = () => {
                         <div className="d-flex align-items-center gap-3">
                           <div className="d-flex align-items-center gap-1">
                             <img
-                              src={Profile}
+                           
+                              src={`${backendUrl}${comment.user.profileImage}`}
                               className="rounded-circle"
                               alt="Profile"
                               style={{
@@ -487,7 +536,6 @@ const ArticleCard = () => {
                             )}
                           </div>
                         </div>
-
                         <div className="d-flex align-items-center mb-1">
                           <span
                             className="mx-4 my-2"
@@ -508,40 +556,58 @@ const ArticleCard = () => {
                           >
                             Reply
                           </span>
-                          <div className="d-flex align-items-center ml-2">
-                            <div className="d-flex align-items-center gap-1 m-1">
-                              <FaThumbsUp
-                                className="icon"
-                                style={{ fontSize: "12px", cursor: "pointer" }}
-                                onClick={() =>
-                                  handleLikeComment(post._id, comment._id)
-                                }
-                              />
-                              <span
-                                className="ml-1"
-                                style={{ fontSize: "12px" }}
-                              >
-                                {comment.upvotes.length}
-                              </span>
-                            </div>
-                            <div className="d-flex align-items-center gap-1 m-1">
-                              <FaThumbsDown
-                                className="icon"
-                                style={{ fontSize: "12px", cursor: "pointer" }}
-                                onClick={() =>
-                                  handleDislikeComment(post._id, comment._id)
-                                }
-                              />
-                              <span
-                                className="ml-1"
-                                style={{ fontSize: "12px" }}
-                              >
-                                {comment.downvotes.length}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
 
+                          {currentUser !== comment.user.name ? (
+                            <div className="d-flex align-items-center ml-2">
+                              <div className="d-flex align-items-center gap-1 m-1">
+                                <FaThumbsUp
+                                  className="icon"
+                                  style={{
+                                    fontSize: "12px",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() =>
+                                    handleLikeComment(post._id, comment._id)
+                                  }
+                                />
+                                <span
+                                  className="ml-1"
+                                  style={{ fontSize: "12px" }}
+                                >
+                                  {comment.upvotes.length}
+                                </span>
+                              </div>
+                              <div className="d-flex align-items-center gap-1 m-1">
+                                <FaThumbsDown
+                                  className="icon"
+                                  style={{
+                                    fontSize: "12px",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() =>
+                                    handleDislikeComment(post._id, comment._id)
+                                  }
+                                />
+                                <span
+                                  className="ml-1"
+                                  style={{ fontSize: "12px" }}
+                                >
+                                  {comment.downvotes.length}
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                color: "gray",
+                                margin: "10px 10px",
+                              }}
+                            >
+                              You
+                            </span>
+                          )}
+                        </div>
                         {showReplyBox === comment._id && (
                           <div className="d-flex align-items-center mb-2">
                             <input
@@ -552,6 +618,12 @@ const ArticleCard = () => {
                               onChange={(e) =>
                                 handleReplyChange(e, comment._id)
                               }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault(); // Prevent form submission or any other default action
+                                  handleReplySubmit(post._id, comment._id); // Submit the reply
+                                }
+                              }}
                               style={{ maxWidth: "350px" }}
                             />
                             <button
@@ -565,6 +637,7 @@ const ArticleCard = () => {
                           </div>
                         )}
 
+                        {/* For replies */}
                         {comment.replies &&
                           showReplies === comment._id &&
                           comment.replies.map((reply) => (
@@ -578,7 +651,7 @@ const ArticleCard = () => {
                             >
                               <div className="d-flex align-items-center">
                                 <img
-                                  src={Profile}
+                                  src={`http://localhost:4000/${reply.user.profileImage}`}
                                   className="rounded-circle"
                                   alt="Profile"
                                   style={{
@@ -598,50 +671,65 @@ const ArticleCard = () => {
                                     })}
                                   </small>
                                 </div>
-                                <div className="d-flex align-items-center ml-2">
-                                  <div className="d-flex align-items-center gap-1 m-1">
-                                    <FaThumbsUp
-                                      className="icon"
-                                      style={{
-                                        fontSize: "12px",
-                                        cursor: "pointer",
-                                      }}
-                                      onClick={() =>
-                                        handleLikeReplyComment(
-                                          post._id,
-                                          comment._id,
-                                          reply._id
-                                        )
-                                      }
-                                    />
-                                    <span
-                                      className="ml-1"
-                                      style={{ fontSize: "12px" }}
-                                    >
-                                      {reply.upvotes.length}
-                                    </span>
-                                    <FaThumbsDown
-                                      className="icon"
-                                      style={{
-                                        fontSize: "12px",
-                                        cursor: "pointer",
-                                      }}
-                                      onClick={() =>
-                                        handleDislikeReplyComment(
-                                          post._id,
-                                          comment._id,
-                                          reply._id
-                                        )
-                                      }
-                                    />
-                                    <span
-                                      className="ml-1"
-                                      style={{ fontSize: "12px" }}
-                                    >
-                                      {reply.downvotes.length}
-                                    </span>
+
+                                {currentUser !== reply.user.name ? (
+                                  <div className="d-flex align-items-center ml-2">
+                                    <div className="d-flex align-items-center gap-1 m-1">
+                                      <FaThumbsUp
+                                        className="icon"
+                                        style={{
+                                          fontSize: "12px",
+                                          cursor: "pointer",
+                                        }}
+                                        onClick={() =>
+                                          handleLikeReplyComment(
+                                            post._id,
+                                            comment._id,
+                                            reply._id
+                                          )
+                                        }
+                                      />
+                                      <span
+                                        className="ml-1"
+                                        style={{ fontSize: "12px" }}
+                                      >
+                                        {reply.upvotes.length}
+                                      </span>
+                                    </div>
+                                    <div className="d-flex align-items-center gap-1 m-1">
+                                      <FaThumbsDown
+                                        className="icon"
+                                        style={{
+                                          fontSize: "12px",
+                                          cursor: "pointer",
+                                        }}
+                                        onClick={() =>
+                                          handleDislikeReplyComment(
+                                            post._id,
+                                            comment._id,
+                                            reply._id
+                                          )
+                                        }
+                                      />
+                                      <span
+                                        className="ml-1"
+                                        style={{ fontSize: "12px" }}
+                                      >
+                                        {reply.downvotes.length}
+                                      </span>
+                                    </div>
                                   </div>
-                                </div>
+                                ) : (
+                                  <span
+                                    style={{
+                                      fontSize: "12px",
+                                      margin: "10px 5px",
+                                      color: "gray",
+                                    }}
+                                  >
+                                    You
+                                  </span>
+                                )}
                               </div>
                               <div className="d-flex ">
                                 <span>{reply.content}</span>

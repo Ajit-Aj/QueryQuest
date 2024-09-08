@@ -86,9 +86,9 @@ const downvotePost = asyncHandler(async (req, res) => {
 // Get all posts
 const getAllPosts = asyncHandler(async (req, res) => {
   const posts = await Post.find()
-    .populate("user", "name profileImage") // Corrected syntax to include both name and profileImage
-    .populate("comments.user", "name")
-    .populate("comments.replies.user", "name");
+    .populate("user", "name profileImage")
+    .populate("comments.user", "name profileImage")
+    .populate("comments.replies.user", "name profileImage");
 
   res.json(posts);
 });

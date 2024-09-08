@@ -32,10 +32,10 @@ export const AuthProvider = ({ children }) => {
       profileImage: null,
     });
 
-    setTimeout(() => {
+    // setTimeout(() => {
       localStorage.removeItem("authToken");
       navigate("/");
-    }, 1800);
+    // }, 1800);
   };
 
   useEffect(() => {

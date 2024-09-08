@@ -1,10 +1,9 @@
 import React, { useState, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-// import "../../App.css";
-import Logo from "../../../assets/Logo.svg";
+// import "../../../App.css";
+import Logo from "../../../assets/images/logos/Logo_blue.svg";
 import Profile from "../../../assets/profile.jpg";
-import Quest from "../../../assets/images/logos/Logo_blue.svg";
 import {
   Navbar,
   Nav,
@@ -50,6 +49,8 @@ const CustomNavbar = () => {
     title: "",
     content: "",
   });
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const displayImage = profileImage
     ? profileImage
@@ -206,8 +207,7 @@ const CustomNavbar = () => {
             <Dropdown className="py-1">
               <Dropdown.Toggle variant="link" bsPrefix="p-0">
                 <img
-                  // src={`REACT_APP_BACKEND_URL${user.profileImage}`}
-                  src={`http://localhost:4000/${displayImage}`}
+                  src={`${backendUrl}${displayImage}`}
                   alt="Profile"
                   className="profile-pic"
                 />
@@ -241,7 +241,7 @@ const CustomNavbar = () => {
           <Nav.Link href="#search" onClick={handleShow}>
             <FaSearch /> Search
           </Nav.Link>
-          <img src={Quest} alt="Quest Logo" />
+          <img src={Logo} alt="Quest Logo" />
           <Nav.Link href="#add" onClick={handleShow}>
             <FaPlus /> Add
           </Nav.Link>
@@ -312,89 +312,96 @@ const CustomNavbar = () => {
       </div>
 
       <Modal show={showModal} onHide={handleClose}>
-        <Modal.Header>
-          <Modal.Title>
-            <Tabs
-              activeKey={activeTab}
-              onSelect={(e) => setActiveTab(e)}
-              className="mb-3"
+        <Modal.Title>
+          <Tabs
+            activeKey={activeTab}
+            onSelect={(e) => setActiveTab(e)}
+            className="mb-0"
+          >
+            <Tab
+              style={{ padding: "15px" }}
+              eventKey="addQuestion"
+              title="Add Question"
+              tab-title-custom
             >
-              <Tab eventKey="addQuestion" title="Add Question" tab-title-custom>
-                <div className="card shadow-sm tips-card">
-                  <p className="tips-text">
-                    Tips on getting good answers quickly
-                  </p>
-                  <ul className="tips-list">
-                    <li>Make sure your question has not been asked already</li>
-                    <li>Keep your question short and to the point</li>
-                    <li>Double-check grammar and spelling</li>
-                  </ul>
-                </div>
-                <Form className="py-3" onSubmit={handleAddQuestion}>
-                  <Form.Group>
-                    <Form.Label>Question Title</Form.Label>
-                    <FormControl
-                      as="textarea"
-                      rows={2}
-                      name="title"
-                      placeholder="Enter your question title here"
-                      value={formData.title}
-                      onChange={handleChangeQuestion}
+              <div className="card shadow-sm tips-card">
+                <p className="tips-text">
+                  Tips on getting good answers quickly
+                </p>
+                <ul className="tips-list">
+                  <li>Make sure your question has not been asked already</li>
+                  <li>Keep your question short and to the point</li>
+                  <li>Double-check grammar and spelling</li>
+                </ul>
+              </div>
+              <Form className="py-0" onSubmit={handleAddQuestion}>
+                <Form.Group>
+                  <Form.Label>Question Title</Form.Label>
+                  <FormControl
+                    as="textarea"
+                    rows={2}
+                    name="title"
+                    placeholder="Enter your question title here"
+                    value={formData.title}
+                    onChange={handleChangeQuestion}
+                  />
+                  <Form.Label>Content</Form.Label>
+                  <FormControl
+                    as="textarea"
+                    rows={3}
+                    name="content"
+                    placeholder="Enter your question content here"
+                    value={formData.content}
+                    onChange={handleChangeQuestion}
+                  />
+                </Form.Group>
+                <Button type="submit" variant="primary" className="mt-3">
+                  Add Question
+                </Button>
+              </Form>
+            </Tab>
+            <Tab
+              style={{ padding: "15px" }}
+              eventKey="createPost"
+              title="Create Post"
+            >
+              <Form onSubmit={handleCreatePost}>
+                <Form.Group className="mb-2">
+                  <Form.Label style={{ fontSize: "18px" }}>
+                    Post Content
+                  </Form.Label>
+                  <FormControl
+                    as="textarea"
+                    rows={4}
+                    placeholder="Write your post here"
+                    value={post}
+                    onChange={(e) => setPost(e.target.value)}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label style={{ fontSize: "18px" }}>
+                    Image (optional)
+                  </Form.Label>
+                  <FormControl
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="selected-image"
                     />
-                    <Form.Label>Content</Form.Label>
-                    <FormControl
-                      as="textarea"
-                      rows={3}
-                      name="content"
-                      placeholder="Enter your question content here"
-                      value={formData.content}
-                      onChange={handleChangeQuestion}
-                    />
-                  </Form.Group>
-                  <Button type="submit" variant="primary" className="mt-3">
-                    Add Question
-                  </Button>
-                </Form>
-              </Tab>
-              <Tab eventKey="createPost" title="Create Post">
-                <Form onSubmit={handleCreatePost} className="p-2">
-                  <Form.Group className="mb-2">
-                    <Form.Label style={{ fontSize: "18px" }}>
-                      Post Content
-                    </Form.Label>
-                    <FormControl
-                      as="textarea"
-                      rows={4}
-                      placeholder="Write your post here"
-                      value={post}
-                      onChange={(e) => setPost(e.target.value)}
-                    />
-                  </Form.Group>
-                  <Form.Group>
-                    <Form.Label style={{ fontSize: "18px" }}>
-                      Image (optional)
-                    </Form.Label>
-                    <FormControl
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                    />
-                    {imagePreview && (
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="selected-image"
-                      />
-                    )}
-                  </Form.Group>
-                  <Button type="submit" variant="primary" className="mt-3">
-                    Create Post
-                  </Button>
-                </Form>
-              </Tab>
-            </Tabs>
-          </Modal.Title>
-        </Modal.Header>
+                  )}
+                </Form.Group>
+                <Button type="submit" variant="primary" className="mt-3">
+                  Create Post
+                </Button>
+              </Form>
+            </Tab>
+          </Tabs>
+        </Modal.Title>
       </Modal>
     </>
   );

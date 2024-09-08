@@ -15,7 +15,7 @@ const SettingsPage = () => {
   const [newUserName, setNewUserName] = useState("");
   const [newBio, setNewBio] = useState("");
   const [newProfileImage, setNewProfileImage] = useState(null);
-  const { id, name } = useContext(AuthContext); // Fetch the user id from context
+  const { id, name } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -45,8 +45,17 @@ const SettingsPage = () => {
     };
 
     fetchUserData();
-  }, [id]); // Dependency on `id`
+  }, [id]);
 
+  useEffect(() => {
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = Array.from(
+      document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
+    tooltipTriggerList.map(
+      (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
+    );
+  }, []);
   const handleSaveChanges = async () => {
     try {
       const updateData = {};
@@ -123,11 +132,27 @@ const SettingsPage = () => {
       {error && <div className="alert alert-danger">{error}</div>}
       <div className="row">
         <div className="col-md-8 mx-auto">
-          <div className="card">
+          <div
+            className="card"
+            style={{
+              borderRadius: "10px",
+              padding: "10px",
+              border: "0.1px solid #d3d3d3",
+              backgroundColor: "white",
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+            }}
+          >
             <div className="text-end">
-              <Button className="btn" onClick={() => setShowModal(true)}>
-                <FaPen />
-              </Button>
+              <FaPen
+                style={{ cursor: "pointer" }}
+                title="Edit profile"
+                size={20}
+                onClick={() => setShowModal(true)}
+                className="me-2 text-primary"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                data-bs-title="Edit profile"
+              />
             </div>
             <div className="card-body d-flex justify-content-center align-items-center">
               <img
