@@ -15,11 +15,6 @@ import {
 
 import mongoose from "mongoose";
 
-// import{ upload} from "../middleware/uploadMiddleware.js"
-
-// import User from "../models/userModel.js";
-import Question from "../models/Question.js";
-
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, phone, password, role } = req.body;
@@ -84,66 +79,6 @@ const registerUser = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-// });
-
-// Update Profile Picture
-// const updateProfilePicture = asyncHandler(async (req, res) => {
-//   upload(req, res, async (err) => {
-//     if (err) {
-//       return res.status(400).json({ message: err });
-//     }
-
-//     try {
-//       const user = await User.findById(req.user._id);
-
-//       if (!user) {
-//         return res.status(404).json({ message: "User not found" });
-//       }
-
-//       user.profileImage = req.file ? `/uploads/${req.file.filename}` : '';
-//       await user.save();
-
-//       res.json({ message: "Profile picture updated successfully", profileImage: user.profileImage });
-//     } catch (error) {
-//       console.error(error);
-//       res.status(500).json({ message: "Server error" });
-//     }
-//   });
-// });
-
-
-// // Delete Profile Picture
-// const deleteProfilePicture = asyncHandler(async (req, res) => {
-//   try {
-//     const user = await User.findById(req.user._id);
-
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     user.profileImage = '';
-//     await user.save();
-
-//     res.json({ message: "Profile picture deleted successfully" });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-// Fetch All Users
-// const getAllUsers = asyncHandler(async (req, res) => {
-//   try {
-//     const users = await User.find(
-//       {},
-//       "-password -otp -resetToken -resetTokenExpiration"
-//     );
-//     res.json(users);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
 
 // // Fetch All Users with Question Count
 const getAllUsers = asyncHandler(async (req, res) => {
@@ -160,20 +95,20 @@ const getAllUsers = asyncHandler(async (req, res) => {
       },
       {
         $lookup: {
-          from: "users", 
-          localField: "followers", 
+          from: "users",
+          localField: "followers",
           foreignField: "_id",
-          as: "followingDetails", 
+          as: "followerDetails",
         },
       },
-      // {
-      //   $lookup: {
-      //     from: "users", // Collection name of users
-      //     localField: "following", // Field in the user document
-      //     foreignField: "_id", // Field in the users collection
-      //     as: "followingDetails", // Name for the joined data
-      //   },
-      // },
+      {
+        $lookup: {
+          from: "users", // Collection name of users
+          localField: "following", // Field in the user document
+          foreignField: "_id", // Field in the users collection
+          as: "followingDetails", // Name for the joined data
+        },
+      },
       {
         $addFields: {
           questionCount: { $size: "$questions" }, // Add questionCount field
@@ -204,7 +139,7 @@ const getUserById = asyncHandler(async (req, res) => {
     const user = await User.aggregate([
       {
         $match: {
-          _id: new mongoose.Types.ObjectId(userId), 
+          _id: new mongoose.Types.ObjectId(userId),
         },
       },
       {
@@ -336,9 +271,9 @@ const signin = asyncHandler(async (req, res) => {
     if (!isPasswordValid) {
       return res.status(400).json({ message: "Password is incorrect" });
     }
-
+    
     // Generate the token and send the response
-    const token = generateToken(user._id, user.role, user.name);
+    const token = generateToken(user._id, user.role, user.name,user.profileImage);
     res.json({
       message: "Login successful",
       token,
@@ -458,10 +393,38 @@ const getProfileById = asyncHandler(async (req, res) => {
 });
 
 // Update Profile Picture
-const updateProfilePicture = asyncHandler(async (req, res) => {
-  console.log(req.body);
-  console.log(req.params);
+// const updateProfilePicture = asyncHandler(async (req, res) => {
+//   console.log(req.body);
+//   console.log(req.params);
 
+//   upload.single("profileImage")(req, res, async (err) => {
+//     if (err) {
+//       return res
+//         .status(400)
+//         .json({ message: err.message || "File upload failed" });
+//     }
+
+//     try {
+//       const user = await User.findById(req.params.id);
+//       if (!user) {
+//         return res.status(404).json({ message: "User not found" });
+//       }
+
+//       user.profileImage = req.file ? `uploads/${req.file.filename}` : "";
+//       await user.save();
+
+//       res.json({
+//         message: "Profile picture updated successfully",
+//         profileImage: user.profileImage,
+//       });
+//     } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ message: "Server error" });
+//     }
+//   });
+// });
+
+const updateProfilePicture = asyncHandler(async (req, res) => {
   upload.single("profileImage")(req, res, async (err) => {
     if (err) {
       return res
@@ -475,9 +438,17 @@ const updateProfilePicture = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: "User not found" });
       }
 
-      user.profileImage = req.file ? `/uploads/${req.file.filename}` : "";
+      // Check if an image file is uploaded
+      let imageUrl = null;
+      if (req.file) {
+        imageUrl = req.file.path; // Save the file path of the uploaded image
+      }
+
+      // Update the user's profileImage field with the image URL
+      user.profileImage = imageUrl;
       await user.save();
 
+      // Send a response with the updated profile image URL
       res.json({
         message: "Profile picture updated successfully",
         profileImage: user.profileImage,
@@ -487,6 +458,41 @@ const updateProfilePicture = asyncHandler(async (req, res) => {
       res.status(500).json({ message: "Server error" });
     }
   });
+});
+
+// change name and bio
+const changeUsernameAndBio = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { newUsername, newBio } = req.body;
+
+  // Check if newUsername is provided
+  if (!newUsername) {
+    return res.status(400).json({ message: "Username is required" });
+  }
+
+  try {
+    // Find the user by ID
+    const user = await User.findById(id);
+
+    // If user is not found, return 404 error
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update username and bio (if provided)
+    user.name = newUsername;
+    if (newBio) {
+      user.bio = newBio;
+    }
+    await user.save(); // Save the updated user
+
+    // Return success response
+    res.status(200).json({ message: "Username and bio updated successfully" });
+  } catch (error) {
+    console.error(error);
+    // Return server error response
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 // Delete Profile Picture
@@ -518,4 +524,5 @@ export {
   updateProfilePicture,
   deleteProfilePicture,
   getUserById,
+  changeUsernameAndBio,
 };

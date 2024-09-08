@@ -40,12 +40,20 @@ const CustomNavbar = () => {
   const [title, setTitle] = useState("");
   const [post, setPost] = useState("");
   const [imagePreview, setImagePreview] = useState("");
-  const { name: userName, clearAuthInfo } = useContext(AuthContext);
+  const {
+    name: userName,
+    clearAuthInfo,
+    profileImage,
+  } = useContext(AuthContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
     content: "",
   });
+
+  const displayImage = profileImage
+    ? profileImage
+    : "https://th.bing.com/th/id/OIP.T9s09Pl74H7Yzy0Wdj5ZjQHaHa?rs=1&pid=ImgDetMain";
 
   const handleShow = () => setShowModal(true);
   const handleClose = () => {
@@ -83,23 +91,6 @@ const CustomNavbar = () => {
     },
     [formData]
   );
-
-  // const handleCreatePost = useCallback(
-  //   async (e) => {
-  //     e.preventDefault();
-  //     try {
-  //       const response = await AxiosInstance.post("/api/posts/create-post", {
-  //         content: post,
-  //         image: selectedImage,
-  //       });
-  //       toast.success(response.data.message);
-  //       handleClose();
-  //     } catch (error) {
-  //       toast.error("Failed to create post");
-  //     }
-  //   },
-  //   [post, selectedImage]
-  // );
 
   const handleCreatePost = useCallback(
     async (e) => {
@@ -139,7 +130,7 @@ const CustomNavbar = () => {
 
   const handleLogout = useCallback(() => {
     clearAuthInfo();
-  }, [clearAuthInfo, navigate]);
+  }, [clearAuthInfo]);
 
   return (
     <>
@@ -214,16 +205,17 @@ const CustomNavbar = () => {
             </Button>
             <Dropdown className="py-1">
               <Dropdown.Toggle variant="link" bsPrefix="p-0">
-                <img src={Profile} alt="Profile" className="profile-pic" />
+                <img
+                  // src={`REACT_APP_BACKEND_URL${user.profileImage}`}
+                  src={`http://localhost:4000/${displayImage}`}
+                  alt="Profile"
+                  className="profile-pic"
+                />
               </Dropdown.Toggle>
               <Dropdown.Menu align="end">
                 <Dropdown.Item
-                  onClick={() => navigate("/settings-page/view-page")}
+                  onClick={() => navigate("/settings-page/profile")}
                 >
-                  <p>{userName}</p>
-                </Dropdown.Item>
-
-                <Dropdown.Item onClick={() => navigate("/profile")}>
                   Profile
                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => navigate("/settings")}>

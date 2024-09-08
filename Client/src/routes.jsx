@@ -3,7 +3,6 @@ import { useRoutes, Navigate, BrowserRouter } from "react-router-dom";
 import Loader from ".//utils/Loader.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 
-
 /****Auth Pages*****/
 const Login = lazy(() => import("./components/Auth/Login"));
 const Register = lazy(() => import("./components/Auth/Register"));
@@ -16,7 +15,9 @@ const PrivateRoute = lazy(() => import("./components/Auth/PrivateRoute.jsx"));
 
 /****Layouts*****/
 
-const UserLayout = lazy(() => import("./components/UserPages/Layouts/UserLayout.jsx"));
+const UserLayout = lazy(() =>
+  import("./components/UserPages/Layouts/UserLayout.jsx")
+);
 const FullLayout = lazy(() =>
   import("./components/AdminPages/layouts/FullLayout.jsx")
 );
@@ -30,7 +31,9 @@ const QuestionLayout = lazy(() =>
 /****User Pages*****/
 
 const Home = lazy(() => import("./components/UserPages/Pages/home.jsx"));
-const CustomNavbar = lazy(() => import("./components/UserPages/Navbar/Navbar.jsx"));
+const CustomNavbar = lazy(() =>
+  import("./components/UserPages/Navbar/Navbar.jsx")
+);
 const QuestionForYou = lazy(() =>
   import("./components/UserPages/Questions/QuestionsForYou.jsx")
 );
@@ -113,7 +116,7 @@ function AppRoutes() {
     {
       path: "/settings-page",
       element: <PrivateRoute element={<SettingLayout />} role="user" />,
-      children: [{ path: "view-page", element: <ViewProfile /> }],
+      children: [{ path: "profile", element: <ViewProfile /> }],
     },
 
     // Admin routes

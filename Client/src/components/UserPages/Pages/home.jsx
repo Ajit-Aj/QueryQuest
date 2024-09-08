@@ -30,7 +30,7 @@ const ArticleCard = () => {
   const [showReplies, setShowReplies] = useState(null);
   const [userID, setUserID] = useState("");
   const [followStatus, setFollowStatus] = useState({});
-  const { id, name } = useContext(AuthContext);
+  const { id, name, profileImage } = useContext(AuthContext);
 
   const { data, loading, error } = useFetch("/api/posts/all");
 
@@ -43,7 +43,6 @@ const ArticleCard = () => {
       }
     }
   }, [data, error]);
-  console.log(posts);
 
   useEffect(() => {
     if (id && name) {
@@ -84,27 +83,6 @@ const ArticleCard = () => {
     );
   }
 
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     try {
-  //       const response = await axiosInstance.get(
-  //         `/api/auth/usersById/${currentUser._id}`
-  //       );
-  //       const user = response.data;
-  //       setUserID(user._id);
-  //       // const followStatus = {};
-  //       // user.following.forEach((id) => {
-  //       //   followStatus[id] = true;
-  //       // });
-  //       // setFollowStatus(followStatus);
-  //     } catch (error) {
-  //       console.error("Error fetching user data", error);
-  //     }
-  //   };
-
-  //   fetchUserData();
-  // }, []);
-
   const handleFollowToggle = async (userId) => {
     try {
       // Make the request to toggle follow/unfollow
@@ -123,7 +101,7 @@ const ArticleCard = () => {
   const handleUpVotePost = async (postId) => {
     try {
       await axiosInstance.post(`/api/posts/upvote/${postId}`);
-     const response = await axiosInstance.get("/api/posts/all");
+      const response = await axiosInstance.get("/api/posts/all");
       setPosts(response.data);
     } catch (error) {
       console.error("Error submitting reply", error);
@@ -133,7 +111,8 @@ const ArticleCard = () => {
   const handleDownVotePost = async (postId) => {
     try {
       await axiosInstance.post(`/api/posts/downvote/${postId}`);
-      fetchPostData();
+      const response = await axiosInstance.get("/api/posts/all");
+      setPosts(response.data);
     } catch (error) {
       console.error("Error submitting reply", error);
     }
@@ -217,6 +196,7 @@ const ArticleCard = () => {
       console.error("Error submitting upvote reply comment", error);
     }
   };
+
   const handleDislikeReplyComment = async (postId, commentId, replyId) => {
     try {
       await axiosInstance.post(
@@ -257,34 +237,11 @@ const ArticleCard = () => {
     setCommentToDelete(null);
   };
 
-  // const handleToFollow = async () => {
-  //   try {
-  //     await axiosInstance.post(`/api/users/follow/${userID}`, {});
-  //   } catch (error) {
-  //     console.error("Error submitting reply", error);
-  //   }
-  // };
-  // const handleToUnfollow = async () => {
-  //   try {
-  //     await axiosInstance.post(`/api/users/unfollow/${userID}`, {});
-  //   } catch (error) {
-  //     console.error("Error submitting reply", error);
-  //   }
-  // };
-
   if (loading) {
     return (
       <Container className="mt-4 text-center">
         <Loader />
       </Container>
-    );
-  }
-
-  if (posts.length === 0) {
-    return (
-      <p>
-        <Loader />
-      </p>
     );
   }
 
@@ -301,9 +258,13 @@ const ArticleCard = () => {
           <div className="card-body">
             <div className="d-flex align-items-center mb-3">
               <img
-                src={Profile}
-                className="rounded-circle"
+                src={
+                  profileImage
+                    ? `http://localhost:4000/${profileImage}`
+                    : "https://th.bing.com/th/id/OIP.T9s09Pl74H7Yzy0Wdj5ZjQHaHa?rs=1&pid=ImgDetMain"
+                }
                 alt="Profile"
+                className="rounded-circle"
                 style={{ width: "50px", height: "50px", marginRight: "10px" }}
               />
               <input
@@ -334,31 +295,55 @@ const ArticleCard = () => {
           <div
             key={post._id}
             className="card mb-3 shadow-sm"
-            style={{ borderRadius: "10px", padding: "10px" }}
+            style={{
+              borderRadius: "10px",
+              padding: "10px",
+              border: "0.1px solid #d3d3d3",
+              backgroundColor: "white",
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+            }}
           >
             <div className="d-flex align-items-center">
               <img
-                src={Profile}
-                className="rounded-circle"
+                src={
+                  post.user && post.user.profileImage
+                    ? `http://localhost:4000/${post.user.profileImage}`
+                    : "https://th.bing.com/th/id/OIP.T9s09Pl74H7Yzy0Wdj5ZjQHaHa?rs=1&pid=ImgDetMain"
+                }
                 alt="Profile"
+                className="rounded-circle"
                 style={{ width: "50px", height: "50px", marginRight: "10px" }}
               />
+
               <div className="d-flex flex-column">
                 <div
                   className="d-flex align-items-center"
                   style={{ gap: "10px" }}
                 >
-                  <h6 className="mb-0 mr-2">{post.user.name}</h6>
-                  <button
-                    className={`btn btn-link ml-auto p-0 m-0${
-                      followStatus[post.user._id]
-                        ? "btn-success"
-                        : "btn-outline-success"
-                    }`}
-                    onClick={() => handleFollowToggle(post.user._id)}
-                  >
-                    {followStatus[post.user._id] ? "Following" : "Follow"}
-                  </button>
+                  <>
+                    <h6 className="mb-0 mr-2">
+                      {post.user ? post.user.name : "Default Name"}
+                    </h6>
+
+                    {post.user && post.user._id !== id ? (
+                      <button
+                        className={`btn btn-link ml-auto p-0 m-0${
+                          followStatus[post.user._id]
+                            ? "btn-success"
+                            : "btn-outline-success"
+                        }`}
+                        onClick={() =>
+                          post.user && handleFollowToggle(post.user._id)
+                        }
+                      >
+                        {followStatus[post.user._id] ? "Following" : "Follow"}
+                      </button>
+                    ) : (
+                      <span className="ml-auto" style={{ color: "grey" }}>
+                        You
+                      </span>
+                    )}
+                  </>
                 </div>
                 <div>
                   <small className="text-muted">
@@ -371,7 +356,7 @@ const ArticleCard = () => {
               </div>
             </div>
 
-            <h6 className="p-1">{post.content}</h6>
+            <h6 className="p-2">{post.content}</h6>
 
             {post.image && (
               <img

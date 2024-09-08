@@ -16,7 +16,7 @@ export const createQuestion = asyncHandler(async (req, res) => {
 
 // Get all questions
 export const getAllQuestions = asyncHandler(async (req, res) => {
-  const questions = await Question.find().populate('user', 'name');
+  const questions = await Question.find().populate('user', 'name profileImage');
   res.json(questions);
 });
 

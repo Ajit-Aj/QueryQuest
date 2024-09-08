@@ -10,7 +10,8 @@ import {
   deleteProfilePicture,
   resendOTP,
   getProfileById,
-  getUserById
+  getUserById,
+  changeUsernameAndBio
 
 } from "../controllers/authController.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
@@ -40,7 +41,9 @@ router.get("/usersById/:id", getUserById);
 router.get("/profile/:id", getProfileById);
 
 // Update Profile Picture
-router.put("/update-profile-picture/:id", updateProfilePicture);
+router.patch("/update-profile-picture/:id", updateProfilePicture);
+
+router.patch('/profile/userdetails/:id', changeUsernameAndBio);
 
 // Delete Profile Picture
 router.delete("/delete-profile-picture/:id", deleteProfilePicture);

@@ -10,24 +10,30 @@ export const AuthProvider = ({ children }) => {
     userRole: null,
     name: null,
     id: null,
+    profileImage: null,
   });
   const navigate = useNavigate();
 
   const setAuthInfo = ({ token }) => {
     if (token) {
       const decodedToken = decodeToken(token);
-      // console.log(decodedToken);
-      const { role, name, id } = decodedToken;
-      setAuthState({ token, userRole: role, name, id });
+      console.log(decodedToken);
+      const { role, name, id, profileImage } = decodedToken;
+      setAuthState({ token, userRole: role, name, id, profileImage });
       localStorage.setItem("authToken", token);
     }
   };
 
   const clearAuthInfo = () => {
-    setAuthState({ token: null, userRole: null, name: null });
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userRole");
+    setAuthState({
+      token: null,
+      userRole: null,
+      name: null,
+      profileImage: null,
+    });
+
     setTimeout(() => {
+      localStorage.removeItem("authToken");
       navigate("/");
     }, 1800);
   };

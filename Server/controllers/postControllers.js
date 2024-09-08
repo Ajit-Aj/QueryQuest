@@ -4,23 +4,6 @@ import User from "../models/User.js";
 // import upload from "../middleware/multerConfig.js";
 
 // Create a new post
-// const createPost = asyncHandler(async (req, res) => {
-//   console.log(req.body);
-//   const { content, image } = req.body;
-//   const user = req.user._id;
-
-//   const post = new Post({
-//     user,
-//     content,
-//   });
-//   const createdPost = await post.save();
-//   const userProfile = await User.findById(user);
-//   userProfile.posts.push(createdPost._id);
-//   await userProfile.save();
-//   res.status(201).json(createdPost);
-// });
-
-// Create a new post
 const createPost = asyncHandler(async (req, res) => {
   const { content } = req.body; // Extract content from the request body
   const user = req.user._id; // Get user ID from the authenticated user
@@ -28,7 +11,7 @@ const createPost = asyncHandler(async (req, res) => {
   // Check if an image file is uploaded
   let imageUrl = null;
   if (req.file) {
-    imageUrl = req.file.path; // Store the file path of the uploaded image
+    imageUrl = req.file.path;
   }
 
   // Create a new post object
@@ -49,39 +32,6 @@ const createPost = asyncHandler(async (req, res) => {
   // Send a response with the created post
   res.status(201).json(createdPost);
 });
-
-// // Create a new post with image upload
-// const createPost = asyncHandler(async (req, res) => {
-//   console.log(req.body);
-
-//   upload(req, res, async (err) => {
-//     if (err) {
-//       res.status(400).json({ message: err });
-//       return;
-//     }
-
-//     const { content } = req.body;
-//     const user = req.user._id;
-//     let imagePath = "";
-
-//     if (req.file) {
-//       imagePath = req.file.path; // Save the file path in the database
-//     }
-
-//     const post = new Post({
-//       user,
-//       content,
-//       image: imagePath,
-//     });
-
-//     const createdPost = await post.save();
-//     const userProfile = await User.findById(user);
-//     userProfile.posts.push(createdPost._id);
-//     await userProfile.save();
-
-//     res.status(201).json(createdPost);
-//   });
-// });
 
 // Upvote a post
 const upvotePost = asyncHandler(async (req, res) => {
@@ -136,9 +86,10 @@ const downvotePost = asyncHandler(async (req, res) => {
 // Get all posts
 const getAllPosts = asyncHandler(async (req, res) => {
   const posts = await Post.find()
-    .populate("user", "name")
+    .populate("user", "name profileImage") // Corrected syntax to include both name and profileImage
     .populate("comments.user", "name")
     .populate("comments.replies.user", "name");
+
   res.json(posts);
 });
 
