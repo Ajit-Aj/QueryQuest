@@ -65,8 +65,13 @@ The backend server should now be running on `http://localhost:4000.`
     ```bash
     npm install
     ```
+3. **Create a .env file in the backend directory:**
+   
+    ```bash
+   VITE_BACKEND_URL="Your Backend Url"
+    ```
 
-3. **Start the frontend development server:**
+5. **Start the frontend development server:**
     ```bash
     npm start
     ```
